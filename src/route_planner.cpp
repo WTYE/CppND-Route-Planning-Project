@@ -21,27 +21,20 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node)
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node)
 {
     current_node->FindNeighbors();
-    for (auto n : current_node->neighbors)
+    for (auto &n : current_node->neighbors)
     {
         n->parent = current_node;
         n->h_value = RoutePlanner::CalculateHValue(n);
         n->g_value = current_node->g_value + current_node->distance(*n);
-        open_list.push_back(n);
         n->visited = true;
+        open_list.push_back(n);
     }
-    current_node->visited = true;
-}
-
-bool Compare(const RouteModel::Node *a, const RouteModel::Node *b)
-{
-    float f1 = a->h_value + a->g_value;
-    float f2 = b->h_value + b->g_value;
-    return f1 > f2;
 }
 
 RouteModel::Node *RoutePlanner::NextNode()
 {
-    sort(open_list.begin(), open_list.end(), Compare);
+    sort(open_list.begin(), open_list.end(), [](const RouteModel::Node *a, const RouteModel::Node *b)
+         { return a->h_value + a->g_value > b->h_value + b->g_value; });
     RouteModel::Node *nearestNode;
     nearestNode = open_list.back();
     open_list.pop_back();
@@ -68,12 +61,10 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
 
 void RoutePlanner::AStarSearch()
 {
-    RouteModel::Node *current_node = nullptr;
-
-    // TODO: Implement your solution here.
+    RouteModel::Node *current_node = start_node;
+    current_node->visited = true;
     open_list.push_back(start_node);
-    start_node->visited = true;
-    while (open_list.size() > 0)
+    while (!open_list.empty())
     {
         current_node = NextNode();
         if (current_node == end_node)
