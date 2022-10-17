@@ -27,6 +27,22 @@ static std::optional<std::vector<std::byte>> ReadFile(const std::string &path)
     return std::move(contents);
 }
 
+bool checkRange(int user_input_x, int user_input_y)
+{
+    // check here if the input is in the range [0, 100]
+    if (user_input_x >= 0 && user_input_x <= 100 && user_input_y >= 0 && user_input_y <= 100)
+        return true;
+    return false;
+}
+
+int getInput()
+{
+    // this function asks the user to get the input and shows some output in return
+    int input;
+    std::cin >> input;
+    return input;
+}
+
 int main(int argc, const char **argv)
 {
     std::string osm_data_file = "";
@@ -54,10 +70,22 @@ int main(int argc, const char **argv)
         else
             osm_data = std::move(*data);
     }
-    std::cout << "Input start x, y and end x, y"
-              << "\n";
-    float start_x, start_y, end_x, end_y;
-    std::cin >> start_x >> start_y >> end_x >> end_y;
+
+    float start_x = -1, start_y = -1, end_x = -1, end_y = -1;
+    while (!checkRange(start_x, start_y))
+    {
+        std::cout << "Please Input starting point x, y in range [0,100]"
+                  << "\n";
+        start_x = getInput();
+        start_y = getInput();
+    }
+    while (!checkRange(end_x, end_y))
+    {
+        std::cout << "Please Input destination x, y in range [0,100]"
+                  << "\n";
+        end_x = getInput();
+        end_y = getInput();
+    }
 
     // Build Model.
     RouteModel model{osm_data};
